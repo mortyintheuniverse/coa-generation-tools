@@ -2,7 +2,6 @@ import { COA } from "@/app/type"
 
 export interface ExportOptions {
   includeImages?: boolean
-  template?: 'default' | 'detailed' | 'minimal'
   filename?: string
   certifiedBy?: string
   projectName?: string
@@ -60,3 +59,16 @@ export const exportAllCOAs = async (coas: COA[], options: ExportOptions = {}) =>
     }
   }
 } 
+
+export const getPreviewPdfUrl = async (coa: COA, options: ExportOptions = {}) => {
+  const response = await fetch('/api/export/single', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ coa, options })
+  })
+  if (!response.ok) {
+    throw new Error('Failed to generate preview')
+  }
+  const blob = await response.blob()
+  return URL.createObjectURL(blob)
+}

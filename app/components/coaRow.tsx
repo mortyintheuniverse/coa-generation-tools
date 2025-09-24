@@ -2,14 +2,16 @@
 
 import { useState, useRef } from "react"
 import { COA, Experiment } from "../type"
-import { Upload, X, Plus } from "lucide-react"
+import { Upload, X, Plus, Eye } from "lucide-react"
+import { getPreviewPdfUrl } from "@/lib/exportUtils"
 
 interface COARowProps {
   coa: COA
   onUpdate: (updates: Partial<COA>) => void
+  certifiedBy?: string
 }
 
-export default function COARow({ coa, onUpdate }: COARowProps) {
+export default function COARow({ coa, onUpdate, certifiedBy }: COARowProps) {
   const [showImage1, setShowImage1] = useState(false)
   const [showImage2, setShowImage2] = useState(false)
   const [dragOver1, setDragOver1] = useState(false)
@@ -57,8 +59,8 @@ export default function COARow({ coa, onUpdate }: COARowProps) {
     const newExperiment: Experiment = {
       id: Date.now().toString(),
       qcItems: `QC Item ${(coa.experiments?.length || 0) + 1}`,
-      specifications: '',
-      resultDescription: '',
+      method: '',
+      acceptanceCriteria: '',
       status: 'pass'
     }
 
@@ -78,12 +80,36 @@ export default function COARow({ coa, onUpdate }: COARowProps) {
     onUpdate({ experiments: updatedExperiments })
   }
 
+  const handlePreview = async () => {
+    try {
+      const url = await getPreviewPdfUrl(coa, { 
+        includeImages: true,
+        certifiedBy: certifiedBy || 'Unknown'
+      })
+      window.open(url, '_blank')
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   return (
     <div className="border-b border-gray-200 bg-white relative">
       {/* Main COA Data Block - 3 Rows */}
       <div className="p-6 w-full">
-        {/* Row 1: Order ID, Sample, Clone, Vector */}
-        <div className="grid grid-cols-4 gap-4 mb-3">
+        {/* Row 1: Preview + Order ID, Sample, Clone, Vector */}
+        <div className="grid grid-cols-4 gap-4 mb-3 items-start">
+          <div className="flex items-center pt-5">
+            <button
+              onClick={handlePreview}
+              className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800"
+              title="Preview PDF"
+            >
+              <Eye size={14} />
+              Preview
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-4 gap-4 mb-3 items-start">
           <div className="flex flex-col">
             <span className="text-xs font-medium text-gray-500 mb-1">Order ID</span>
             <span className="text-sm font-semibold text-gray-900">{coa.orderId}</span>
@@ -109,7 +135,7 @@ export default function COARow({ coa, onUpdate }: COARowProps) {
             <span className="text-sm text-gray-700">{coa.resistance}</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-xs font-medium text-gray-500 mb-1">Position</span>
+            <span className="text-xs font-medium text-gray-500 mb-1">Cloning Site</span>
             <span className="text-sm text-gray-700">{coa.clonePosition || "N/A"}</span>
           </div>
           <div className="flex flex-col">
@@ -253,13 +279,13 @@ export default function COARow({ coa, onUpdate }: COARowProps) {
       {coa.experiments && coa.experiments.length > 0 && (
         <div className="border-t border-gray-200 bg-blue-50">
           <div className="p-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Experiments</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">额外检测</h3>
             <div className="space-y-3">
               {coa.experiments.map((experiment, index) => (
                 <div key={experiment.id} className="bg-white rounded-lg p-4 border border-gray-200">
                   <div className="grid grid-cols-4 gap-4">
                     <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 mb-1">QC Items</span>
+                      <span className="text-xs font-medium text-gray-500 mb-1">QC项目</span>
                       <input
                         type="text"
                         value={experiment.qcItems}
@@ -270,17 +296,28 @@ export default function COARow({ coa, onUpdate }: COARowProps) {
                     </div>
 
                     <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 mb-1">Specifications</span>
+                      <span className="text-xs font-medium text-gray-500 mb-1">测试方法</span>
                       <input
                         type="text"
-                        value={experiment.specifications}
-                        onChange={(e) => updateExperiment(experiment.id, { specifications: e.target.value })}
+                        value={experiment.method}
+                        onChange={(e) => updateExperiment(experiment.id, { method: e.target.value })}
                         className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
                         placeholder="Specifications"
                       />
                     </div>
+
                     <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 mb-1">Result Value</span>
+                      <span className="text-xs font-medium text-gray-500 mb-1">测试标准</span>
+                      <input
+                        type="text"
+                        value={experiment.acceptanceCriteria}
+                        onChange={(e) => updateExperiment(experiment.id, { acceptanceCriteria: e.target.value })}
+                        className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        placeholder="Acceptance Criteria"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-gray-500 mb-1">结果</span>
                       <div className="flex gap-2">
                         <select
                           value={experiment.status}
@@ -298,16 +335,6 @@ export default function COARow({ coa, onUpdate }: COARowProps) {
                         </button>
                       </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs font-medium text-gray-500 mb-1">Result Description</span>
-                      <input
-                        type="text"
-                        value={experiment.resultDescription}
-                        onChange={(e) => updateExperiment(experiment.id, { resultDescription: e.target.value })}
-                        className="w-full text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        placeholder="Result Description"
-                      />
-                    </div>
                   </div>
                 </div>
               ))}
@@ -316,7 +343,7 @@ export default function COARow({ coa, onUpdate }: COARowProps) {
         </div>
       )}
 
-      {/* Full-screen image modals */}
+
       {showImage1 && coa.image1 && (
         <div
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 cursor-pointer"

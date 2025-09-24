@@ -50,7 +50,7 @@ export default function Home() {
                 value={tempName}
                 onChange={(e) => setTempName(e.target.value)}
                 placeholder="Enter name..."
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="px-3 py-1 text-lg font-semibold border-0 bg-transparent focus:outline-none focus:ring-0"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') saveName()
@@ -73,17 +73,15 @@ export default function Home() {
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div 
+              className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 rounded-lg px-2 py-1 transition-colors"
+              onClick={startEditingName}
+            >
               <Label className="text-lg font-semibold text-gray-900">
-                {name || "Operator Name"}
+              {name || ("操作员名称")} 
+                
               </Label>
-              <button
-                onClick={startEditingName}
-                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                title="Edit name"
-              >
-                <Edit2 size={14} />
-              </button>
+              <Edit2 size={14} className="text-gray-400" />
             </div>
           )}
         </div>
@@ -95,11 +93,10 @@ export default function Home() {
           onParseError={handleParseError}
         />
         <div className="border border-gray-200 rounded-lg bg-white shadow-sm">
-          <COAList coas={coas} setCOAs={setCOAs} />
+          <COAList coas={coas} setCOAs={setCOAs} certifiedBy={name} />
         </div>
       </div>
       
-      {/* Sticky Export Button */}
       <ExportButton coas={coas} certifiedBy={name} />
     </div>
   )

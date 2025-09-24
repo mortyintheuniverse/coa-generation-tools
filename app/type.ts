@@ -2,10 +2,10 @@
 
 export interface Experiment {
   id: string
-  qcItems: string // QC Items
-  specifications: string // Specifications
-  resultDescription: string // Result Description
-  status: 'pass' | 'fail' // PASS | FAIL
+  qcItems: string 
+  method: string 
+  acceptanceCriteria: string 
+  status: 'pass' | 'fail' 
 }
 
 export interface COA {
@@ -21,12 +21,9 @@ export interface COA {
   label: string
   competence: string
   recognitionSite: string | null
-  state: 'unused' | 'used'
-  plateId?: string
   experiments?: Experiment[]
-  // Image data for PDF generation
-  image1?: string // Base64 encoded image data
-  image2?: string // Base64 encoded image data
+  image1?: string 
+  image2?: string 
 }
 
 

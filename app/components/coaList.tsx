@@ -6,9 +6,10 @@ import COARow from "./coaRow"
 interface COAListProps {
   coas: COA[]
   setCOAs: (coas: COA[]) => void
+  certifiedBy?: string
 }
 
-export default function COAList({ coas, setCOAs }: COAListProps) {
+export default function COAList({ coas, setCOAs, certifiedBy }: COAListProps) {
   const updateCOA = (id: string, updates: Partial<COA>) => {
     const updatedCOAs = coas.map(coa => 
       coa.id === id ? { ...coa, ...updates } : coa
@@ -31,6 +32,7 @@ export default function COAList({ coas, setCOAs }: COAListProps) {
           key={coa.id}
           coa={coa}
           onUpdate={(updates: Partial<COA>) => updateCOA(coa.id, updates)}
+          certifiedBy={certifiedBy}
         />
       ))}
     </div>

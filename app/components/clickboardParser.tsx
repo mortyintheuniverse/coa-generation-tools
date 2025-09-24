@@ -11,7 +11,6 @@ interface ClipboardParserProps {
 }
 
 export default function ClipboardParser({ 
-  coas, 
   setCOAs, 
   onParseSuccess, 
   onParseError 
@@ -106,8 +105,6 @@ export default function ClipboardParser({
               clonePosition: clonePosition,
               label: label,
               recognitionSite: recognitionSite.trim() || null, // Set to null if empty after trimming
-              state: 'unused',
-              plateId: undefined
             }
 
             parsedCOAs.push(coa)
