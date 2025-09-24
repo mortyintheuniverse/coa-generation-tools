@@ -16,11 +16,9 @@ export async function POST(request: NextRequest) {
     
     console.log(`Starting server-side export of ${coas.length} COAs`)
     
-    // Generate all PDFs using optimized batch function with shared browser instance
     const pdfs = await generateCOAPDFsBatch(coas, options)
     console.log(`Generated ${pdfs.length} PDFs`)
     
-    // Create ZIP file
     const zip = new JSZip()
     pdfs.forEach(({ filename, data }) => {
       zip.file(filename, data)
@@ -31,8 +29,7 @@ export async function POST(request: NextRequest) {
     
     console.log(`Created ZIP file: ${zipFilename}`)
     
-    // Return the ZIP file as a response
-    return new NextResponse(zipBuffer, {
+    return new NextResponse(new Uint8Array(zipBuffer), {
       headers: {
         'Content-Type': 'application/zip',
         'Content-Disposition': `attachment; filename="${zipFilename}"`,
@@ -47,4 +44,4 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
-} 
+}

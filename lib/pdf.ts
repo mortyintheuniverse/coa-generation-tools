@@ -219,7 +219,7 @@ export const generateCOAHTML = (coa: COA, options: PDFTemplateOptions = {}) => {
         </div>
         <div class="company-subtitle">苏州硅基生物科技有限公司</div>
       </div>
-      <div class="slogan">The Molecular Passion</div>
+      <div class="slogan"></div>
     </div>
 
     <div class="title">Certificate of Analysis</div>
