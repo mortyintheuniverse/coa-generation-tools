@@ -12,13 +12,11 @@ export interface PDFTemplateOptions {
 const generateAttachmentPageHTML = (coa: COA, logoBase64: string, certifiedBy: string) => {
   const currentDate = new Date().toISOString().split('T')[0].replace(/-/g, '/')
   
-  
-  const cloningSites = coa.recognitionSite || 'EcoRI and HindIII'
-  const enzymes = cloningSites.includes('and') ? cloningSites : cloningSites.split(',').join(', ')
+    const enzymes = coa.recognitionSite
   
   // Generate lane descriptions based on cloning sites
   const laneDescriptions = [
-    { lane: 'M', sample: '1 kb DNA Ladder' },
+    { lane: 'M', sample: 'DNA Ladder' },
     { lane: '1', sample: 'Undigested' },
     { lane: '2', sample: `${enzymes} digested` },
   ]
@@ -108,17 +106,17 @@ export const generateCOAHTML = (coa: COA, options: PDFTemplateOptions = {}) => {
   }
 
   const headerInfo = [
-    { label: 'Project Number', value: coa.orderId || 'GS9420' },
-    { label: 'Clone Number', value: coa.cloneName || 'Test' },
-    { label: 'Gene Name', value: coa.sampleName || 'Custom Synthesized Gene in pUC57 Cloning Vector' },
+    { label: 'Project Number', value: coa.orderId  },
+    { label: 'Clone Number', value: coa.cloneName },
+    { label: 'Gene Name', value: coa.sampleName  },
   ]
 
   const productSpecs = [
-    { parameter: 'Vector', specification: coa.vector || 'pUC57' },
-    { parameter: 'Cloning Sites', specification: coa.recognitionSite || 'EcoRI and HindIII' },
+    { parameter: 'Vector', specification: coa.vector  },
+    { parameter: 'Cloning Sites', specification: coa.clonePosition },
     { parameter: 'Resistance', specification: 'Ampicillin' },
     { parameter: 'Yield', specification: `≥ 2ug` },
-    { parameter: 'Competence', specification: coa.competence || 'Competent Cells' }
+    { parameter: 'Competence', specification: coa.competence  }
   ]
 
      const baseQcTests = [
@@ -196,7 +194,7 @@ export const generateCOAHTML = (coa: COA, options: PDFTemplateOptions = {}) => {
          .qc-table td { padding: 6px 10px; border: none; border-bottom: 1px solid #d9d9d9; vertical-align: top; font-size: 11px; }
          /* Bottom positioning */
          .page-content { min-height: calc(100vh - 200px); }
-         .bottom-section { margin-top: auto; }
+         .bottom-section {  }
          /* Page break for attachment */
          .page-break { page-break-before: always; }
          /* Attachment page styles */
@@ -210,73 +208,81 @@ export const generateCOAHTML = (coa: COA, options: PDFTemplateOptions = {}) => {
          .analysis-box { border-left: 4px solid #3b82f6; padding-left: 15px; margin: 15px 0; background: #f8fafc; padding: 10px 15px; }
          .intended-use-footer { position: fixed; bottom: 5mm; right: 4mm; font-style: italic; font-weight: bold; font-size: 10px; color: #333; text-align: right; }
       </style>
-    </head>
-        <body style="display: flex; flex-direction: column; min-height: 100vh;">
-      <div class="page-content">
-        <div class="header">
-          <div class="company-info">
-            <div class="company-name" style="display: flex; align-items: center;">
-             ${logoBase64 ? `<img src="${logoBase64}" style="width: 24px; height: 24px; margin-right: 6px;" alt="Logo" />` : ''}
-             ATANTARES
-           </div>
-            <div class="company-subtitle">苏州硅基生物科技有限公司</div>
-          </div>
-          <div class="slogan">The Molecular Passion</div>
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+  <div class="page-content">
+    <div class="header">
+      <div class="company-info">
+        <div class="company-name" style="display: flex; align-items: center;">
+          ${logoBase64 ? `<img src="${logoBase64}" style="width: 24px; height: 24px; margin-right: 6px;" alt="Logo" />` : ''}
+          ATANTARES
         </div>
-        <div class="title">Certificate of Analysis</div>
-        <div class="subtitle">Gene Synthesis - Reference Material</div>
-        <div class="section">
-          <div class="section-title">General Information</div>
-          ${headerInfoHTML}
-        </div>
-        <div class="section">
-          <div class="section-title">Product Specifications</div>
-          <table class="specs-table">
-            <thead>
-              <tr><th>Parameter</th><th>Specification</th></tr>
-            </thead>
-            <tbody>${productSpecsHTML}</tbody>
-          </table>
-          <div style="margin-top: 15px; margin-left: 10px; font-size: 11px; color: #333; text-align: left;">
-            <strong>*Storage Information:</strong> Plasmid: -20°C, Stab culture: 4°C, Glycerol stock: -80°C
-          </div>
-        </div>
-        <div class="section">
-          <div class="section-title">Quality Control Analysis</div>
-          <table class="qc-table">
-                       <thead>
-               <tr>
-                 <th>Test</th>
-                 <th>Method</th>
-                 <th>Acceptance Criteria</th>
-                 <th>Result</th>
-               </tr>
-             </thead>
-           <tbody>${qcRowsHTML}</tbody>
-         </table>
-       </div>
+        <div class="company-subtitle">苏州硅基生物科技有限公司</div>
       </div>
-      <div class="bottom-section">
-        <div class="section">
-          <div class="section-title">Concluding Statement</div>
-          <p>The document certifies that the gene product described has been manufactured and tested in accordance with established quality control procedures and meets the specifications outlined in this certificate.</p>
-        </div>
-        <div class="release-info" style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin:15px 0;">
-           <div>
-             <div style="font-weight:500;color:#333;font-size:11px;margin-bottom:2px;">Release Date</div>
-             <div>${currentDate}</div>
-           </div>
-           <div>
-             <div style="font-weight:500;color:#333;font-size:11px;margin-bottom:2px;">Signatory</div>
-             <div>${options.certifiedBy || 'Unknown'}</div>
-           </div>
-         </div>
+      <div class="slogan">The Molecular Passion</div>
+    </div>
+
+    <div class="title">Certificate of Analysis</div>
+    <div class="subtitle">Gene Synthesis - Reference Material</div>
+
+    <div class="section">
+      <div class="section-title">General Information</div>
+      ${headerInfoHTML}
+    </div>
+
+    <div class="section">
+      <div class="section-title">Product Specifications</div>
+      <table class="specs-table">
+        <thead>
+          <tr><th>Parameter</th><th>Specification</th></tr>
+        </thead>
+        <tbody>${productSpecsHTML}</tbody>
+      </table>
+      <div class="storage-info">
+        <strong>*Storage Information:</strong> Plasmid: -20°C, Stab culture: 4°C, Glycerol stock: -80°C
       </div>
-      <div class="intended-use-footer pt-10">
-        *Intended Use: For research use only. Suitable for cloning, sequencing, and expression studies.
+    </div>
+
+    <div class="section">
+      <div class="section-title">Quality Control Analysis</div>
+      <table class="qc-table">
+        <thead>
+          <tr>
+            <th>Test</th>
+            <th>Method</th>
+            <th>Acceptance Criteria</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>${qcRowsHTML}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="bottom-section">
+    <div class="section">
+      <div class="section-title">Concluding Statement</div>
+      <p>The document certifies that the gene product described has been manufactured and tested in accordance with established quality control procedures and meets the specifications outlined in this certificate.</p>
+    </div>
+
+    <div class="release-info" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+      <div>
+        <div style="font-weight: 500; color: #333; font-size: 11px; margin-bottom: 2px;">Release Date</div>
+        <div>${currentDate}</div>
       </div>
-      ${attachmentPageHTML}
-    </body>
+      <div>
+        <div style="font-weight: 500; color: #333; font-size: 11px; margin-bottom: 2px;">Signatory</div>
+        <div>${options.certifiedBy || 'Unknown'}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="intended-use-footer">
+    *Intended Use: For research use only. Suitable for cloning, sequencing, and expression studies.
+  </div>
+
+  ${attachmentPageHTML && attachmentPageHTML.trim() !== '' ? attachmentPageHTML : ''}
+</body>
     </html>
   `
 }
