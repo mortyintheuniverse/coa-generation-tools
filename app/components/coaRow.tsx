@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { COA, Experiment } from "../type"
 import { Upload, X, Plus, Eye } from "lucide-react"
 import { getPreviewPdfUrl } from "@/lib/exportUtils"
+
+import ClipboardUploadModal, { ClipboardUploadModalRef } from './imageParser';
 
 interface COARowProps {
   coa: COA
@@ -18,6 +20,19 @@ export default function COARow({ coa, onUpdate, certifiedBy }: COARowProps) {
   const [dragOver2, setDragOver2] = useState(false)
   const fileInput1Ref = useRef<HTMLInputElement>(null)
   const fileInput2Ref = useRef<HTMLInputElement>(null)
+  const modalRef = useRef<ClipboardUploadModalRef>(null);
+
+
+  const handlePasteImage = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = reader.result as string;
+      onUpdate({ image1: base64 });
+    };
+    reader.readAsDataURL(file); 
+  };
+
+
 
   const handleImageUpload = (file: File, setImage: (data: string) => void) => {
     const reader = new FileReader()
@@ -200,21 +215,25 @@ export default function COARow({ coa, onUpdate, certifiedBy }: COARowProps) {
                   <X size={10} />
                 </button>
               </div>
-            ) : (
-              <div
-                onDragOver={(e) => handleDragOver(e, setDragOver1)}
-                onDragLeave={(e) => handleDragLeave(e, setDragOver1)}
-                onDrop={(e) => handleDrop(e, (data) => onUpdate({ image1: data }), setDragOver1)}
-                className={`w-22 h-22 border-2 border-dashed rounded flex items-center justify-center transition-colors cursor-pointer bg-white shadow-sm ${
-                  dragOver1
-                    ? 'border-blue-400 bg-blue-50 text-blue-600'
-                    : 'border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-600'
-                }`}
-                onClick={() => openFileDialog(fileInput1Ref)}
-                title="Click or drag to upload Image 1"
-              >
-                <Upload size={20} />
-              </div>
+            ) :  (
+              <>
+                <div
+                  onDragOver={(e) => handleDragOver(e, setDragOver1)}
+                  onDragLeave={(e) => handleDragLeave(e, setDragOver1)}
+                  onDrop={(e) => handleDrop(e, (data) => onUpdate({ image1: data }), setDragOver1)}
+                  className={`w-22 h-22 border-2 border-dashed rounded flex items-center justify-center transition-colors cursor-pointer bg-white shadow-sm ${
+                    dragOver1
+                      ? 'border-blue-400 bg-blue-50 text-blue-600'
+                      : 'border-gray-300 text-gray-400 hover:border-gray-400 hover:text-gray-600'
+                  }`}
+                  onClick={() => modalRef.current?.open()} // ⬅️ This triggers your modal now
+                  title="Click to paste from clipboard or drag image here"
+                >
+                  <Upload size={20} />
+                </div>
+          
+                <ClipboardUploadModal ref={modalRef} onPasteImage={handlePasteImage} />
+              </>
             )}
             <input
               ref={fileInput1Ref}
@@ -376,3 +395,16 @@ export default function COARow({ coa, onUpdate, certifiedBy }: COARowProps) {
     </div>
   )
 } 
+
+
+
+
+
+
+
+
+
+
+
+
+
