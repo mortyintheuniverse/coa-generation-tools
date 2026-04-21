@@ -11,14 +11,16 @@ export interface PDFTemplateOptions {
 
 const generateAttachmentPageHTML = (coa: COA, logoBase64: string, certifiedBy: string) => {
   const currentDate = new Date().toISOString().split('T')[0].replace(/-/g, '/')
-  
-    const enzymes = coa.recognitionSite
+  const enzymes = coa.recognitionSite?.trim()
+  const recognitionSiteNote = coa.recognitionSiteNote?.trim()
+  const lane2SampleParts = [enzymes, recognitionSiteNote].filter(Boolean)
+  const lane2Sample = lane2SampleParts.length > 0 ? `${lane2SampleParts.join(' ')} digested` : 'Digested'
   
   // Generate lane descriptions based on cloning sites
   const laneDescriptions = [
     { lane: 'M', sample: 'DNA Ladder' },
     { lane: '1', sample: 'Undigested' },
-    { lane: '2', sample: `${enzymes} digested` },
+    { lane: '2', sample: lane2Sample },
   ]
 
   const laneRowsHTML = laneDescriptions.map(row => `

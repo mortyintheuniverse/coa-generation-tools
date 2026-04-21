@@ -177,7 +177,16 @@ export default function COARow({ coa, onUpdate, certifiedBy }: COARowProps) {
           </div>
           <div className="flex flex-col">
             <span className="text-xs font-medium text-gray-500 mb-1">Recognition Site</span>
-            <span className="text-sm text-gray-700">{coa.recognitionSite || "N/A"}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-700 whitespace-nowrap">{coa.recognitionSite || "N/A"}</span>
+              <input
+                type="text"
+                value={coa.recognitionSiteNote || ""}
+                onChange={(e) => onUpdate({ recognitionSiteNote: e.target.value })}
+                className="flex-1 min-w-0 text-xs border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Optional lane 2 text"
+              />
+            </div>
           </div>
           <div className="flex flex-col gap-2">
             <span className="text-xs font-medium text-gray-500 mb-1">额外检测</span>

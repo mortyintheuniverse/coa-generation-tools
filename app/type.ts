@@ -21,6 +21,7 @@ export interface COA {
   label: string
   competence: string
   recognitionSite: string | null
+  recognitionSiteNote?: string
   experiments?: Experiment[]
   image1?: string 
   image2?: string 
